@@ -1,4 +1,5 @@
 # Sign-In Data Saver
+**[NOT FINISHED]**
 Sign-In Data Saver is a python program that allows users to add, edit, and save sign-in information to a JSON file. Users can easily edit sign-in information for many different websites/applications and save the information to the data file.
 
 **Note: In the event that the data file is _deleted/corrupted_, the program will _create/overwrite_ the previous file, which may result in _losing file data_ if the file was corrupted or unreadable.**
