@@ -111,83 +111,8 @@ def get_new_key():
   return new_key
 
 
-#Allows user to select the data they want to modify
-def select_data(modify):
-  print_saved_data()
-
-  selected_data = input("\nSelect the data you want to " + modify + " (Enter 'cancel' to exit this screen):\n>>>> ")
-
-  if selected_data.lower() == 'cancel':
-    sleep(0.7)
-    
-    clear_console()
-
-    check_user_input()
-
-  with open("sidsData.json") as json_file:
-    file_data = json.load(json_file)
-
-  if selected_data in file_data["used_keys"]:
-    confirm = input("\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n>>>> ")
-
-    while confirm.lower() not in ['yes', 'no']:
-      print("\nThat is not an option.")
-
-      sleep(0.7)
-
-      clear_console()
-
-      confirm = input("\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n>>>> ")
-
-    if confirm.lower() == 'yes':
-      return selected_data
-
-    elif confirm.lower() == 'no':
-      select_data()
-
-  else:
-    print("\nThat is not an option.")
-
-    select_data()
-
-
-# 1. Prints saved user data in JSON file to console
-def print_saved_data():
-  check_for_file()
-
-  clear_console()
-  
-  with open("sidsData.json") as json_file:
-    file_data = json.load(json_file)
-
-  if len(file_data["user_data"]) == 0:
-    print("Your data file has no saved user data.")
-
-    sleep(0.7)
-
-    print("\n\nIn order to print/change user data in JSON file, you must add user data first.")
-
-    sleep(0.7)
-
-    _ = input("\n\nEnter any key to continue:\n>>>> ")
-
-    clear_console()
-    
-    check_user_input()
-  
-  else:
-    for i in file_data["user_data"]:
-      print(i + ". Website : " + file_data["user_data"][i]["website"])
-      print("Email : " + file_data["user_data"][i]["email"])
-      print("Password : " + file_data["user_data"][i]["password"])
-      print("Username : " + file_data["user_data"][i]["username"])
-      print("Phone Number : " + file_data["user_data"][i]["phone_num"] + "\n")
-
-  sleep(0.7)
-
-
-# 2. Adds new user data to JSON file
-def add_new_data():
+#Collects and returns new inputted sign-in data
+def collect_new_data():
   clear_console()
   
   check_for_file()
@@ -231,6 +156,88 @@ def add_new_data():
     clear_console()
     
     check_user_input()
+
+  return website, email, password, username, phone_num
+
+
+#Allows user to select the data they want to modify
+def select_data(modify):
+  print_saved_data()
+
+  selected_data = input("\nSelect the data you want to " + modify + " (Enter 'cancel' to exit this screen):\n>>>> ")
+
+  if selected_data.lower() == 'cancel':
+    sleep(0.7)
+    
+    clear_console()
+
+    check_user_input()
+
+  with open("sidsData.json") as json_file:
+    file_data = json.load(json_file)
+
+  if selected_data in file_data["used_keys"]:
+    confirm = input("\n\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n>>>> ")
+
+    while confirm.lower() not in ['yes', 'no']:
+      print("\nThat is not an option.")
+
+      sleep(0.7)
+
+      clear_console()
+
+      confirm = input("\n\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n>>>> ")
+
+    if confirm.lower() == 'yes':
+      return selected_data
+
+    elif confirm.lower() == 'no':
+      select_data(modify)
+
+  else:
+    print("\nThat is not an option.")
+
+    select_data(modify)
+
+
+# 1. Prints saved user data in JSON file to console
+def print_saved_data():
+  check_for_file()
+
+  clear_console()
+  
+  with open("sidsData.json") as json_file:
+    file_data = json.load(json_file)
+
+  if len(file_data["user_data"]) == 0:
+    print("Your data file has no saved user data.")
+
+    sleep(0.7)
+
+    print("\n\nIn order to print/change user data in JSON file, you must add user data first.")
+
+    sleep(0.7)
+
+    _ = input("\n\nEnter any key to continue:\n>>>> ")
+
+    clear_console()
+    
+    check_user_input()
+  
+  else:
+    for i in file_data["user_data"]:
+      print(i + ". Website : " + file_data["user_data"][i]["website"])
+      print("Email : " + file_data["user_data"][i]["email"])
+      print("Password : " + file_data["user_data"][i]["password"])
+      print("Username : " + file_data["user_data"][i]["username"])
+      print("Phone Number : " + file_data["user_data"][i]["phone_num"] + "\n")
+
+  sleep(0.7)
+
+
+# 2. Adds new user data to JSON file
+def add_new_data():
+  website, email, password, username, phone_num = collect_new_data()
   
   dict_key = get_new_key()
 
@@ -277,10 +284,120 @@ def delete_data():
   print("\n\nSelected data was successfully deleted.")
 
 
-#[NOT FINISHED IMPLEMENTING]
 # 4. Edits selected data in JSON file
 def edit_data():
-  selected_data = select_data('edit')
+  selected_website = select_data('edit')
+  
+  clear_console()
+  
+  sleep(0.7)
+  
+  with open("sidsData.json") as json_file:
+    file_data = json.load(json_file)
+  
+  print("1. Website : " + file_data["user_data"][selected_website]["website"] + "\n2. Email : " + file_data["user_data"][selected_website]["email"] +"\n3. Password : " + file_data["user_data"][selected_website]["password"] +"\n4. Username : " + file_data["user_data"][selected_website]["username"] + "\n5. Phone Number : " + file_data["user_data"][selected_website]["phone_num"])
+  
+  edited_info = input("\n\nWhat do you want to edit? (Enter '6' to Edit All Data or 'cancel' to exit the edit screen)\n>>>> ")
+  
+  while edited_info not in ['1', '2', '3', '4', '5', '6', 'cancel']:
+    print("\nThat is not an option.")
+
+    sleep(0.7)
+
+    clear_console()
+
+    print("1. Website : " + file_data["user_data"][selected_website]["website"] + "\n2. Email : " + file_data["user_data"][selected_website]["email"] +"\n3. Password : " + file_data["user_data"][selected_website]["password"] +"\n4. Username : " + file_data["user_data"][selected_website]["username"] + "\n5. Phone Number : " + file_data["user_data"][selected_website]["phone_num"])
+
+    edited_info = input("\n\nWhat do you want to edit? (Enter '6' to Edit All Data or 'cancel' to exit the edit screen)\n>>>> ")
+  
+  if edited_info == '1':
+    new_website = input("\n\nWhat would you like to change the website to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+
+    if new_website.lower() == 'cancel':
+      clear_console()
+
+      check_user_input()
+
+    else:
+      file_data["user_data"][selected_website]["website"] = new_website
+
+      with open("sidsData.json", "w") as json_file:
+        json.dump(file_data, json_file, indent = 2)
+
+  elif edited_info == '2':
+    new_email = input("\n\nWhat would you like to change the email to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+
+    if new_email.lower() == 'cancel':
+      clear_console()
+
+      check_user_input()
+
+    else:
+      file_data["user_data"][selected_website]["email"] = new_email
+
+      with open("sidsData.json", "w") as json_file:
+        json.dump(file_data, json_file, indent = 2)
+
+  elif edited_info == '3':
+    new_password = input("\n\nWhat would you like to change the password to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+
+    if new_password.lower() == 'cancel':
+      clear_console()
+
+      check_user_input()
+
+    else:
+      file_data["user_data"][selected_website]["password"] = new_password
+
+      with open("sidsData.json", "w") as json_file:
+        json.dump(file_data, json_file, indent = 2)
+
+  elif edited_info == '4':
+    new_username = input("\n\nWhat would you like to change the username to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+
+    if new_username.lower() == 'cancel':
+      clear_console()
+
+      check_user_input()
+
+    else:
+      file_data["user_data"][selected_website]["username"] = new_username
+
+      with open("sidsData.json", "w") as json_file:
+        json.dump(file_data, json_file, indent = 2)
+
+  elif edited_info == '5':
+    new_phone_num = input("\n\nWhat would you like to change the phone number to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+
+    if new_phone_num.lower() == 'cancel':
+      clear_console()
+
+      check_user_input()
+
+    else:
+      file_data["user_data"][selected_website]["phone_num"] = new_phone_num
+
+      with open("sidsData.json", "w") as json_file:
+        json.dump(file_data, json_file, indent = 2)
+  
+  elif edited_info == '6':
+    website, email, password, username, phone_num = collect_new_data()
+
+    file_data["user_data"][selected_website]["website"] = website
+    file_data["user_data"][selected_website]["email"] = email
+    file_data["user_data"][selected_website]["password"] = password
+    file_data["user_data"][selected_website]["username"] =username
+    file_data["user_data"][selected_website]["phone_num"] = phone_num
+
+    with open("sidsData.json", "w") as json_file:
+      json.dump(file_data, json_file, indent = 2)
+
+  elif edited_info.lower() == 'cancel':
+    clear_console()
+
+    check_user_input()
+
+  print("Selected data was successfully edited.")
 
 
 #Checks user input, then calls corresponding functions
