@@ -19,12 +19,13 @@ def display_choices():
   print("2. Add/Save New Data")
   print("3. Delete Certain Saved Data")
   print("4. Edit Existing Data")
-  print("5. Exit Program\n\n")
+  print("5. Change Program Password")
+  print("6. Exit Program\n\n")
 
 
 #Collects user input for main menu
 def get_input():
-  menu_options = ('1', '2', '3', '4', '5')
+  menu_options = ('1', '2', '3', '4', '5', '6')
 
   display_choices()
 
@@ -42,7 +43,7 @@ def get_input():
   return menu_choice
 
 
-#Creates new JSON file if file is invalid
+#Creates new JSON file and password if file is invalid
 def invalid_file():
   print("Data file either doesn't exist or isn't accessible. Creating new data file (may result in data loss if file already existed)...\n\n")
     
@@ -57,10 +58,22 @@ def invalid_file():
       }
     }
     
+  sleep(0.7)
+
+  clear_console()
+  
+  new_password = input("Please enter a new password (Remember this password, as it is neccessary to access and edit the file contents through this program).\n\n>>>> ")
+
+  user_password = {"sids_password" : new_password}
+
+  example_data.update(user_password)
+
+  sleep(0.7)
+
+  clear_console()
+
   with open('sidsData.json', 'w') as json_file:
     json.dump(example_data, json_file, indent = 2)
-    
-  sleep(0.7)
     
   print("New data file was created and is accessible.\n\n")
 
@@ -76,10 +89,10 @@ def check_for_file():
     with open('sidsData.json') as json_file:
       file_data = json.load(json_file)
 
-      if len(file_data) < 2:
+      if len(file_data) < 3:
         invalid_file()
     
-      elif len(file_data) == 2:
+      elif len(file_data) == 3:
         print("Data file was found and is accessible.\n\n")
   
   except:
@@ -88,7 +101,7 @@ def check_for_file():
   finally:
     sleep(0.7)
     
-    print("Do not delete/edit the file 'sidsData.json' or data will be lost/corrupted.")
+    print("Do not delete/edit the files 'sidsData.json' and 'sidsDataKey.key' or data will be lost/corrupted.")
 
   clear_console()
 
@@ -164,7 +177,7 @@ def collect_new_data():
 def select_data(modify):
   print_saved_data()
 
-  selected_data = input("\nSelect the data you want to " + modify + " (Enter 'cancel' to exit this screen):\n>>>> ")
+  selected_data = input("\nSelect the data you want to " + modify + " (Enter 'cancel' to exit this screen):\n\n>>>> ")
 
   if selected_data.lower() == 'cancel':
     sleep(0.7)
@@ -177,7 +190,7 @@ def select_data(modify):
     file_data = json.load(json_file)
 
   if selected_data in file_data["used_keys"]:
-    confirm = input("\n\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n>>>> ")
+    confirm = input("\n\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n\n>>>> ")
 
     while confirm.lower() not in ['yes', 'no']:
       print("\nThat is not an option.")
@@ -186,7 +199,7 @@ def select_data(modify):
 
       clear_console()
 
-      confirm = input("\n\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n>>>> ")
+      confirm = input("\n\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n\n>>>> ")
 
     if confirm.lower() == 'yes':
       return selected_data
@@ -218,7 +231,7 @@ def print_saved_data():
 
     sleep(0.7)
 
-    _ = input("\n\nEnter any key to continue:\n>>>> ")
+    _ = input("\n\nEnter any key to continue:\n\n>>>> ")
 
     clear_console()
     
@@ -297,7 +310,7 @@ def edit_data():
   
   print("1. Website : " + file_data["user_data"][selected_website]["website"] + "\n2. Email : " + file_data["user_data"][selected_website]["email"] +"\n3. Password : " + file_data["user_data"][selected_website]["password"] +"\n4. Username : " + file_data["user_data"][selected_website]["username"] + "\n5. Phone Number : " + file_data["user_data"][selected_website]["phone_num"])
   
-  edited_info = input("\n\nWhat do you want to edit? (Enter '6' to Edit All Data or 'cancel' to exit the edit screen)\n>>>> ")
+  edited_info = input("\n\nWhat do you want to edit? (Enter '6' to Edit All Data or 'cancel' to exit the edit screen)\n\n>>>> ")
   
   while edited_info not in ['1', '2', '3', '4', '5', '6', 'cancel']:
     print("\nThat is not an option.")
@@ -308,10 +321,10 @@ def edit_data():
 
     print("1. Website : " + file_data["user_data"][selected_website]["website"] + "\n2. Email : " + file_data["user_data"][selected_website]["email"] +"\n3. Password : " + file_data["user_data"][selected_website]["password"] +"\n4. Username : " + file_data["user_data"][selected_website]["username"] + "\n5. Phone Number : " + file_data["user_data"][selected_website]["phone_num"])
 
-    edited_info = input("\n\nWhat do you want to edit? (Enter '6' to Edit All Data or 'cancel' to exit the edit screen)\n>>>> ")
+    edited_info = input("\n\nWhat do you want to edit? (Enter '6' to Edit All Data or 'cancel' to exit the edit screen)\n\n>>>> ")
   
   if edited_info == '1':
-    new_website = input("\n\nWhat would you like to change the website to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+    new_website = input("\n\nWhat would you like to change the website to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
 
     if new_website.lower() == 'cancel':
       clear_console()
@@ -325,7 +338,7 @@ def edit_data():
         json.dump(file_data, json_file, indent = 2)
 
   elif edited_info == '2':
-    new_email = input("\n\nWhat would you like to change the email to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+    new_email = input("\n\nWhat would you like to change the email to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
 
     if new_email.lower() == 'cancel':
       clear_console()
@@ -339,7 +352,7 @@ def edit_data():
         json.dump(file_data, json_file, indent = 2)
 
   elif edited_info == '3':
-    new_password = input("\n\nWhat would you like to change the password to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+    new_password = input("\n\nWhat would you like to change the password to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
 
     if new_password.lower() == 'cancel':
       clear_console()
@@ -353,7 +366,7 @@ def edit_data():
         json.dump(file_data, json_file, indent = 2)
 
   elif edited_info == '4':
-    new_username = input("\n\nWhat would you like to change the username to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+    new_username = input("\n\nWhat would you like to change the username to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
 
     if new_username.lower() == 'cancel':
       clear_console()
@@ -367,7 +380,7 @@ def edit_data():
         json.dump(file_data, json_file, indent = 2)
 
   elif edited_info == '5':
-    new_phone_num = input("\n\nWhat would you like to change the phone number to? (Enter 'cancel' to exit the edit screen)\n>>>> ")
+    new_phone_num = input("\n\nWhat would you like to change the phone number to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
 
     if new_phone_num.lower() == 'cancel':
       clear_console()
@@ -400,6 +413,46 @@ def edit_data():
   print("Selected data was successfully edited.")
 
 
+# 5. Changes Program Password in JSON file
+def change_password():
+  check_for_file()
+
+  clear_console()
+
+  with open("sidsData.json") as json_file:
+    file_data = json.load(json_file)
+
+  new_password = input("What would you like to change your program password to? (Enter 'cancel' to exit to main menu)\n\n>>>> ")
+
+  if new_password.lower() == 'cancel':
+    clear_console()
+    
+    check_user_input()
+
+  else:
+    confirm = input("\n\nAre you sure you want to change your program password to " + new_password + "? (Yes or No)\n\n>>>> ")
+
+    while confirm.lower() not in ['yes', 'no']:
+      print("\n\nThat is not an option.")
+
+      clear_console()
+
+      confirm = input("\n\nAre you sure you want to change your program password to " + new_password + "? (Yes or No)\n\n>>>> ")
+
+    if confirm.lower() == 'yes':
+      file_data["sids_password"] = new_password
+    
+      with open("sidsData.json", "w") as json_file:
+        json.dump(file_data, json_file, indent = 2)
+
+      sleep(0.7)
+    
+      print("\n\nSuccessfully changed program password.")
+
+    elif confirm.lower() == 'no':
+      change_password()
+
+
 #Checks user input, then calls corresponding functions
 def check_user_input():
   choice = get_input()
@@ -407,7 +460,7 @@ def check_user_input():
   if choice == '1':
     print_saved_data()
 
-    _ = input("\nEnter any key to continue:\n>>>> ")
+    _ = input("\nEnter any key to continue:\n\n>>>> ")
 
     clear_console()
 
@@ -435,6 +488,13 @@ def check_user_input():
     check_user_input()
   
   elif choice == '5':
+    change_password()
+
+    clear_console()
+
+    check_user_input()
+  
+  elif choice == '6':
     sleep(0.7)
     
     print("\nGoodbye, and thank you for using this program.\n")
@@ -444,8 +504,40 @@ def check_user_input():
     exit('Program Exited')
 
 
+#Creates/checks for user password before allowing user to see or edit JSON file
+def password():
+  try:
+    with open("sidsData.json") as json_file:
+      file_data = json.load(json_file)
+
+    if "sids_password" in file_data:
+      inputted_password = input("Please enter your password to access this program:\n>>>> ")
+      
+      while inputted_password != file_data["sids_password"]:
+        print("\n\nThat is not the correct password.")
+
+        clear_console()
+
+        inputted_password = input("Please enter your password to access this program:\n\n>>>> ")
+
+    else:
+      invalid_file()
+  
+  except:
+    invalid_file()
+  
+  finally:
+    clear_console()
+
+    print("Accessing main menu...")
+
+    clear_console()
+
+    check_user_input()
+
+
 def main():
-  check_user_input()
+  password()
 
 
 if __name__== "__main__":
