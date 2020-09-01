@@ -2,6 +2,7 @@ from os import system, name
 from sys import exit
 from time import sleep
 import json
+from cryptography.fernet import Fernet
 
 
 #Clears console
@@ -43,6 +44,62 @@ def get_input():
   return menu_choice
 
 
+#Gets encryption/decryption key from key file, and generates new key if file doesn't exist
+def get_encr_key():
+  try:
+    with open('sisKey.key', 'rb') as key_file:
+      key = key_file.read()
+    
+  except:
+    new_key = Fernet.generate_key()
+
+    with open('sisKey.key', 'wb') as key_file:
+      key_file.write(new_key)
+
+    with open('sisKey.key', 'rb') as key_file:
+      key = key_file.read()
+
+  finally:
+    return key
+
+
+#Encrypts all data in JSON file and writes encrypted data to file
+def encrypt():
+  encr_key = get_encr_key()
+  
+  with open('sisData.json', 'rb') as json_file:
+    file_data = json_file.read()
+  
+  fernet = Fernet(encr_key)
+
+  encr_data = fernet.encrypt(file_data)
+
+  with open('sisData.json', 'wb') as json_file:
+    json_file.write(encr_data)
+
+
+#Decrypts all encrypted data in JSON file and returns decrypted data, then re-encrypts data
+def decrypt():
+  decr_key = get_encr_key()
+
+  with open('sisData.json', 'rb') as json_file:
+    file_data = json_file.read()
+
+  fernet = Fernet(decr_key)
+
+  decr_data = fernet.decrypt(file_data)
+
+  with open('sisData.json', 'wb') as json_file:
+    json_file.write(decr_data)
+
+  with open('sisData.json') as json_file:
+    file_data = json.load(json_file)
+
+  encrypt()
+
+  return file_data
+
+
 #Creates new JSON file and password if file is invalid
 def invalid_file():
   print("Data file either doesn't exist or isn't accessible. Creating new data file (may result in data loss if file already existed)...\n\n")
@@ -64,7 +121,7 @@ def invalid_file():
   
   new_password = input("Please enter a new password (Remember this password, as it is neccessary to access and edit the file contents through this program).\n\n>>>> ")
 
-  user_password = {"sids_password" : new_password}
+  user_password = {"sis_password" : new_password}
 
   example_data.update(user_password)
 
@@ -72,8 +129,10 @@ def invalid_file():
 
   clear_console()
 
-  with open('sidsData.json', 'w') as json_file:
+  with open('sisData.json', 'w') as json_file:
     json.dump(example_data, json_file, indent = 2)
+
+  encrypt()
     
   print("New data file was created and is accessible.\n\n")
 
@@ -83,17 +142,17 @@ def check_for_file():
   clear_console()
   
   print("Searching for data file...\n\n")
+  
   sleep(0.7)
 
   try:
-    with open('sidsData.json') as json_file:
-      file_data = json.load(json_file)
+    file_data = decrypt()
 
-      if len(file_data) < 3:
-        invalid_file()
+    if len(file_data) < 3:
+      invalid_file()
     
-      elif len(file_data) == 3:
-        print("Data file was found and is accessible.\n\n")
+    elif len(file_data) == 3:
+      print("Data file was found and is accessible.\n\n")
   
   except:
     invalid_file()
@@ -101,25 +160,26 @@ def check_for_file():
   finally:
     sleep(0.7)
     
-    print("Do not delete/edit the files 'sidsData.json' and 'sidsDataKey.key' or data will be lost/corrupted.")
+    print("Do not delete/edit the files 'sisData.json' and 'sisDataKey.key' or data will be lost/corrupted.")
 
   clear_console()
 
 
-#Generates new key for new value in JSON dict, then stores used keys in array/list
+#Generates key for new value in JSON dict, then stores used keys in array/list
 def get_new_key():
-  with open("sidsData.json") as used_key_file:
-    file_data = json.load(used_key_file)
+  file_data = decrypt()
 
   new_key = 1
 
   while str(new_key) in file_data["used_keys"]:
     new_key += 1
 
-  with open('sidsData.json', 'w') as used_key_file:
+  with open('sisData.json', 'w') as used_key_file:
     file_data["used_keys"].append(str(new_key))
     
-    json.dump(file_data, used_key_file, indent = 2)
+    json.dump(file_data, used_key_file)
+
+  encrypt()
 
   return new_key
 
@@ -186,8 +246,7 @@ def select_data(modify):
 
     check_user_input()
 
-  with open("sidsData.json") as json_file:
-    file_data = json.load(json_file)
+  file_data = decrypt()
 
   if selected_data in file_data["used_keys"]:
     confirm = input("\n\nAre you sure you want to " + modify + ":\n\n" + selected_data + ". Website : " + file_data["user_data"][selected_data]["website"] + "\nEmail : " + file_data["user_data"][selected_data]["email"] +"\nPassword : " + file_data["user_data"][selected_data]["password"] +"\nUsername : " + file_data["user_data"][selected_data]["username"] + "\nPhone Number : " + file_data["user_data"][selected_data]["phone_num"] + "\n\n(Yes or No)\n\n>>>> ")
@@ -219,8 +278,7 @@ def print_saved_data():
 
   clear_console()
   
-  with open("sidsData.json") as json_file:
-    file_data = json.load(json_file)
+  file_data = decrypt()
 
   if len(file_data["user_data"]) == 0:
     print("Your data file has no saved user data.")
@@ -262,15 +320,15 @@ def add_new_data():
     'phone_num' : phone_num
     }
   }
-
-  with open('sidsData.json', 'r+') as json_file:
-    file_data = json.load(json_file)
-
-    file_data["user_data"].update(new_dict)
   
-    json_file.seek(0)
+  file_data = decrypt()
 
-    json.dump(file_data, json_file, indent = 2)
+  file_data["user_data"].update(new_dict)
+
+  with open('sisData.json', 'w') as json_file:
+    json.dump(file_data, json_file)
+
+  encrypt()
 
   sleep(0.7)
   
@@ -282,15 +340,16 @@ def add_new_data():
 def delete_data():
   selected_data = select_data('delete')
 
-  with open("sidsData.json") as json_file:
-    file_data = json.load(json_file)
+  file_data = decrypt()
   
   file_data["used_keys"].remove(selected_data)
 
   del file_data["user_data"][selected_data]
       
-  with open("sidsData.json", "w") as json_file:
-    json.dump(file_data, json_file, indent = 2)
+  with open("sisData.json", "w") as json_file:
+    json.dump(file_data, json_file)
+
+  encrypt()
 
   sleep(0.7)
   
@@ -305,8 +364,7 @@ def edit_data():
   
   sleep(0.7)
   
-  with open("sidsData.json") as json_file:
-    file_data = json.load(json_file)
+  file_data = decrypt()
   
   print("1. Website : " + file_data["user_data"][selected_website]["website"] + "\n2. Email : " + file_data["user_data"][selected_website]["email"] +"\n3. Password : " + file_data["user_data"][selected_website]["password"] +"\n4. Username : " + file_data["user_data"][selected_website]["username"] + "\n5. Phone Number : " + file_data["user_data"][selected_website]["phone_num"])
   
@@ -334,8 +392,10 @@ def edit_data():
     else:
       file_data["user_data"][selected_website]["website"] = new_website
 
-      with open("sidsData.json", "w") as json_file:
-        json.dump(file_data, json_file, indent = 2)
+      with open("sisData.json", "w") as json_file:
+        json.dump(file_data, json_file)
+
+      encrypt()
 
   elif edited_info == '2':
     new_email = input("\n\nWhat would you like to change the email to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
@@ -348,8 +408,10 @@ def edit_data():
     else:
       file_data["user_data"][selected_website]["email"] = new_email
 
-      with open("sidsData.json", "w") as json_file:
-        json.dump(file_data, json_file, indent = 2)
+      with open("sisData.json", "w") as json_file:
+        json.dump(file_data, json_file)
+
+      encrypt()
 
   elif edited_info == '3':
     new_password = input("\n\nWhat would you like to change the password to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
@@ -362,8 +424,10 @@ def edit_data():
     else:
       file_data["user_data"][selected_website]["password"] = new_password
 
-      with open("sidsData.json", "w") as json_file:
-        json.dump(file_data, json_file, indent = 2)
+      with open("sisData.json", "w") as json_file:
+        json.dump(file_data, json_file)
+
+      encrypt()
 
   elif edited_info == '4':
     new_username = input("\n\nWhat would you like to change the username to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
@@ -376,8 +440,10 @@ def edit_data():
     else:
       file_data["user_data"][selected_website]["username"] = new_username
 
-      with open("sidsData.json", "w") as json_file:
-        json.dump(file_data, json_file, indent = 2)
+      with open("sisData.json", "w") as json_file:
+        json.dump(file_data, json_file)
+
+      encrypt()
 
   elif edited_info == '5':
     new_phone_num = input("\n\nWhat would you like to change the phone number to? (Enter 'cancel' to exit the edit screen)\n\n>>>> ")
@@ -390,8 +456,10 @@ def edit_data():
     else:
       file_data["user_data"][selected_website]["phone_num"] = new_phone_num
 
-      with open("sidsData.json", "w") as json_file:
-        json.dump(file_data, json_file, indent = 2)
+      with open("sisData.json", "w") as json_file:
+        json.dump(file_data, json_file)
+
+      encrypt()
   
   elif edited_info == '6':
     website, email, password, username, phone_num = collect_new_data()
@@ -402,15 +470,17 @@ def edit_data():
     file_data["user_data"][selected_website]["username"] =username
     file_data["user_data"][selected_website]["phone_num"] = phone_num
 
-    with open("sidsData.json", "w") as json_file:
-      json.dump(file_data, json_file, indent = 2)
+    with open("sisData.json", "w") as json_file:
+      json.dump(file_data, json_file)
+
+    encrypt()
 
   elif edited_info.lower() == 'cancel':
     clear_console()
 
     check_user_input()
 
-  print("Selected data was successfully edited.")
+  print("\n\nSelected data was successfully edited.")
 
 
 # 5. Changes Program Password in JSON file
@@ -419,8 +489,7 @@ def change_password():
 
   clear_console()
 
-  with open("sidsData.json") as json_file:
-    file_data = json.load(json_file)
+  file_data = decrypt()
 
   new_password = input("What would you like to change your program password to? (Enter 'cancel' to exit to main menu)\n\n>>>> ")
 
@@ -440,10 +509,12 @@ def change_password():
       confirm = input("\n\nAre you sure you want to change your program password to " + new_password + "? (Yes or No)\n\n>>>> ")
 
     if confirm.lower() == 'yes':
-      file_data["sids_password"] = new_password
+      file_data["sis_password"] = new_password
     
-      with open("sidsData.json", "w") as json_file:
-        json.dump(file_data, json_file, indent = 2)
+      with open("sisData.json", "w") as json_file:
+        json.dump(file_data, json_file)
+
+      encrypt()
 
       sleep(0.7)
     
@@ -497,6 +568,8 @@ def check_user_input():
   elif choice == '6':
     sleep(0.7)
     
+    clear_console()
+    
     print("\nGoodbye, and thank you for using this program.\n")
     
     sleep(0.7)
@@ -506,14 +579,15 @@ def check_user_input():
 
 #Creates/checks for user password before allowing user to see or edit JSON file
 def password():
+  clear_console()
+  
   try:
-    with open("sidsData.json") as json_file:
-      file_data = json.load(json_file)
+    file_data = decrypt()
 
-    if "sids_password" in file_data:
+    if "sis_password" in file_data:
       inputted_password = input("Please enter your password to access this program:\n>>>> ")
       
-      while inputted_password != file_data["sids_password"]:
+      while inputted_password != file_data["sis_password"]:
         print("\n\nThat is not the correct password.")
 
         clear_console()
